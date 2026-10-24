@@ -1,0 +1,156 @@
+vehicle: excavator
+synthetic: true
+components:
+- id: battery
+  system: power
+- id: alternator
+  system: power
+- id: power_dist
+  system: power
+- id: can_backbone
+  system: network
+- id: engine_ecu
+  system: powertrain
+- id: body_ecu
+  system: body
+- id: hydraulic_pump
+  system: hydraulics
+- id: pump_controller
+  system: hydraulics
+- id: main_valve
+  system: hydraulics
+- id: boom_cylinder
+  system: hydraulics
+- id: arm_cylinder
+  system: hydraulics
+- id: swing_motor
+  system: hydraulics
+- id: oil_cooler
+  system: cooling
+- id: oil_temp_sensor
+  system: cooling
+- id: pressure_sensor
+  system: hydraulics
+- id: joystick_ecu
+  system: controls
+- id: joystick
+  system: controls
+- id: fuel_pump
+  system: fuel
+- id: injectors
+  system: fuel
+- id: cab_display
+  system: body
+edges:
+- from: alternator
+  to: battery
+  p: 0.9
+- from: battery
+  to: power_dist
+  p: 0.9
+- from: power_dist
+  to: engine_ecu
+  p: 0.9
+- from: power_dist
+  to: can_backbone
+  p: 0.9
+- from: can_backbone
+  to: body_ecu
+  p: 0.9
+- from: can_backbone
+  to: engine_ecu
+  p: 0.9
+- from: engine_ecu
+  to: hydraulic_pump
+  p: 0.9
+- from: can_backbone
+  to: pump_controller
+  p: 0.9
+- from: pump_controller
+  to: hydraulic_pump
+  p: 0.9
+- from: hydraulic_pump
+  to: main_valve
+  p: 0.9
+- from: main_valve
+  to: boom_cylinder
+  p: 0.9
+- from: main_valve
+  to: arm_cylinder
+  p: 0.9
+- from: main_valve
+  to: swing_motor
+  p: 0.9
+- from: oil_cooler
+  to: oil_temp_sensor
+  p: 0.9
+- from: hydraulic_pump
+  to: oil_cooler
+  p: 0.9
+- from: power_dist
+  to: pressure_sensor
+  p: 0.9
+- from: pressure_sensor
+  to: pump_controller
+  p: 0.9
+- from: can_backbone
+  to: joystick_ecu
+  p: 0.9
+- from: joystick
+  to: joystick_ecu
+  p: 0.9
+- from: joystick_ecu
+  to: main_valve
+  p: 0.9
+- from: power_dist
+  to: fuel_pump
+  p: 0.9
+- from: fuel_pump
+  to: injectors
+  p: 0.9
+- from: engine_ecu
+  to: injectors
+  p: 0.9
+- from: can_backbone
+  to: cab_display
+  p: 0.9
+dtcs:
+- code: P05010
+  component: battery
+  description: battery fault or out-of-range
+- code: P06011
+  component: engine_ecu
+  description: engine ecu fault or out-of-range
+- code: H20012
+  component: hydraulic_pump
+  description: hydraulic pump fault or out-of-range
+- code: H20023
+  component: boom_cylinder
+  description: boom cylinder fault or out-of-range
+- code: H20034
+  component: arm_cylinder
+  description: arm cylinder fault or out-of-range
+- code: H20045
+  component: swing_motor
+  description: swing motor fault or out-of-range
+- code: P00016
+  component: oil_cooler
+  description: oil cooler fault or out-of-range
+- code: P00027
+  component: oil_temp_sensor
+  description: oil temp sensor fault or out-of-range
+- code: H20058
+  component: pressure_sensor
+  description: pressure sensor fault or out-of-range
+- code: H30019
+  component: joystick_ecu
+  description: joystick ecu fault or out-of-range
+- code: P02010
+  component: fuel_pump
+  description: fuel pump fault or out-of-range
+- code: P02021
+  component: injectors
+  description: injectors fault or out-of-range
+- code: B10012
+  component: cab_display
+  description: cab display fault or out-of-range

@@ -1,0 +1,74 @@
+{
+  "per_vehicle": {
+    "truck": {
+      "n": 193,
+      "top1": 137,
+      "top3": 179,
+      "base": 119,
+      "silent_n": 56,
+      "silent_top1": 17,
+      "silent_base": 0,
+      "accepted": 0,
+      "accepted_correct": 0
+    },
+    "car": {
+      "n": 183,
+      "top1": 136,
+      "top3": 172,
+      "base": 115,
+      "silent_n": 53,
+      "silent_top1": 20,
+      "silent_base": 0,
+      "accepted": 0,
+      "accepted_correct": 0
+    },
+    "bus": {
+      "n": 190,
+      "top1": 148,
+      "top3": 179,
+      "base": 115,
+      "silent_n": 57,
+      "silent_top1": 32,
+      "silent_base": 0,
+      "accepted": 0,
+      "accepted_correct": 0
+    },
+    "excavator": {
+      "n": 188,
+      "top1": 147,
+      "top3": 177,
+      "base": 108,
+      "silent_n": 62,
+      "silent_top1": 45,
+      "silent_base": 0,
+      "accepted": 0,
+      "accepted_correct": 0
+    }
+  },
+  "agent": {
+    "truck": {
+      "n": 37,
+      "accepted": 35,
+      "accepted_correct": 32,
+      "correct": 32
+    },
+    "car": {
+      "n": 36,
+      "accepted": 31,
+      "accepted_correct": 24,
+      "correct": 26
+    },
+    "bus": {
+      "n": 38,
+      "accepted": 37,
+      "accepted_correct": 30,
+      "correct": 31
+    },
+    "excavator": {
+      "n": 36,
+      "accepted": 34,
+      "accepted_correct": 26,
+      "correct": 27
+    }
+  }
+}

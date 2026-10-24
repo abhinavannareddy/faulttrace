@@ -1,0 +1,161 @@
+vehicle: bus
+synthetic: true
+components:
+- id: battery
+  system: power
+- id: alternator
+  system: power
+- id: power_dist
+  system: power
+- id: can_backbone
+  system: network
+- id: engine_ecu
+  system: powertrain
+- id: body_ecu
+  system: body
+- id: fuel_pump
+  system: fuel
+- id: injectors
+  system: fuel
+- id: air_compressor
+  system: air
+- id: air_dryer
+  system: air
+- id: brake_circuit
+  system: chassis
+- id: abs_ecu
+  system: chassis
+- id: door_ecu
+  system: body
+- id: doors
+  system: body
+- id: hvac_ecu
+  system: body
+- id: hvac
+  system: body
+- id: kneeling_valve
+  system: chassis
+- id: trans_ecu
+  system: driveline
+- id: transmission
+  system: driveline
+- id: passenger_counter
+  system: body
+- id: display
+  system: body
+edges:
+- from: alternator
+  to: battery
+  p: 0.9
+- from: battery
+  to: power_dist
+  p: 0.9
+- from: power_dist
+  to: engine_ecu
+  p: 0.9
+- from: power_dist
+  to: can_backbone
+  p: 0.9
+- from: can_backbone
+  to: body_ecu
+  p: 0.9
+- from: can_backbone
+  to: engine_ecu
+  p: 0.9
+- from: power_dist
+  to: fuel_pump
+  p: 0.9
+- from: fuel_pump
+  to: injectors
+  p: 0.9
+- from: engine_ecu
+  to: injectors
+  p: 0.9
+- from: engine_ecu
+  to: air_compressor
+  p: 0.9
+- from: air_compressor
+  to: air_dryer
+  p: 0.9
+- from: air_dryer
+  to: brake_circuit
+  p: 0.9
+- from: air_dryer
+  to: kneeling_valve
+  p: 0.9
+- from: can_backbone
+  to: abs_ecu
+  p: 0.9
+- from: abs_ecu
+  to: brake_circuit
+  p: 0.9
+- from: body_ecu
+  to: door_ecu
+  p: 0.9
+- from: door_ecu
+  to: doors
+  p: 0.9
+- from: air_dryer
+  to: doors
+  p: 0.9
+- from: body_ecu
+  to: hvac_ecu
+  p: 0.9
+- from: hvac_ecu
+  to: hvac
+  p: 0.9
+- from: can_backbone
+  to: trans_ecu
+  p: 0.9
+- from: trans_ecu
+  to: transmission
+  p: 0.9
+- from: can_backbone
+  to: passenger_counter
+  p: 0.9
+- from: can_backbone
+  to: display
+  p: 0.9
+dtcs:
+- code: P05010
+  component: battery
+  description: battery fault or out-of-range
+- code: P06011
+  component: engine_ecu
+  description: engine ecu fault or out-of-range
+- code: P02012
+  component: fuel_pump
+  description: fuel pump fault or out-of-range
+- code: P02023
+  component: injectors
+  description: injectors fault or out-of-range
+- code: P01014
+  component: air_compressor
+  description: air compressor fault or out-of-range
+- code: C12015
+  component: brake_circuit
+  description: brake circuit fault or out-of-range
+- code: C12026
+  component: abs_ecu
+  description: abs ecu fault or out-of-range
+- code: B10017
+  component: doors
+  description: doors fault or out-of-range
+- code: B10028
+  component: hvac
+  description: hvac fault or out-of-range
+- code: C12039
+  component: kneeling_valve
+  description: kneeling valve fault or out-of-range
+- code: P07010
+  component: trans_ecu
+  description: trans ecu fault or out-of-range
+- code: P07021
+  component: transmission
+  description: transmission fault or out-of-range
+- code: B10032
+  component: passenger_counter
+  description: passenger counter fault or out-of-range
+- code: B10043
+  component: display
+  description: display fault or out-of-range

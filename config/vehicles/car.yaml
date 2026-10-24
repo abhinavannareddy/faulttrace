@@ -1,0 +1,153 @@
+vehicle: car
+synthetic: true
+components:
+- id: battery
+  system: power
+- id: alternator
+  system: power
+- id: power_dist
+  system: power
+- id: can_backbone
+  system: network
+- id: engine_ecu
+  system: powertrain
+- id: body_ecu
+  system: body
+- id: fuel_pump
+  system: fuel
+- id: injectors
+  system: fuel
+- id: throttle_body
+  system: air
+- id: o2_sensor
+  system: emissions
+- id: ignition_coils
+  system: ignition
+- id: trans_ecu
+  system: driveline
+- id: gearbox
+  system: driveline
+- id: abs_ecu
+  system: chassis
+- id: wheel_speed_sensors
+  system: chassis
+- id: steering_ecu
+  system: chassis
+- id: power_steering
+  system: chassis
+- id: infotainment
+  system: body
+- id: climate_ecu
+  system: body
+- id: hvac
+  system: body
+edges:
+- from: alternator
+  to: battery
+  p: 0.9
+- from: battery
+  to: power_dist
+  p: 0.9
+- from: power_dist
+  to: engine_ecu
+  p: 0.9
+- from: power_dist
+  to: can_backbone
+  p: 0.9
+- from: can_backbone
+  to: body_ecu
+  p: 0.9
+- from: can_backbone
+  to: engine_ecu
+  p: 0.9
+- from: power_dist
+  to: fuel_pump
+  p: 0.9
+- from: fuel_pump
+  to: injectors
+  p: 0.9
+- from: engine_ecu
+  to: injectors
+  p: 0.9
+- from: engine_ecu
+  to: throttle_body
+  p: 0.9
+- from: o2_sensor
+  to: engine_ecu
+  p: 0.9
+- from: power_dist
+  to: o2_sensor
+  p: 0.9
+- from: engine_ecu
+  to: ignition_coils
+  p: 0.9
+- from: can_backbone
+  to: trans_ecu
+  p: 0.9
+- from: trans_ecu
+  to: gearbox
+  p: 0.9
+- from: can_backbone
+  to: abs_ecu
+  p: 0.9
+- from: power_dist
+  to: wheel_speed_sensors
+  p: 0.9
+- from: wheel_speed_sensors
+  to: abs_ecu
+  p: 0.9
+- from: can_backbone
+  to: steering_ecu
+  p: 0.9
+- from: steering_ecu
+  to: power_steering
+  p: 0.9
+- from: can_backbone
+  to: infotainment
+  p: 0.9
+- from: body_ecu
+  to: climate_ecu
+  p: 0.9
+- from: climate_ecu
+  to: hvac
+  p: 0.9
+dtcs:
+- code: P05010
+  component: battery
+  description: battery fault or out-of-range
+- code: P06011
+  component: engine_ecu
+  description: engine ecu fault or out-of-range
+- code: P02012
+  component: fuel_pump
+  description: fuel pump fault or out-of-range
+- code: P02023
+  component: injectors
+  description: injectors fault or out-of-range
+- code: P01014
+  component: throttle_body
+  description: throttle body fault or out-of-range
+- code: P04015
+  component: o2_sensor
+  description: o2 sensor fault or out-of-range
+- code: P03016
+  component: ignition_coils
+  description: ignition coils fault or out-of-range
+- code: P07017
+  component: trans_ecu
+  description: trans ecu fault or out-of-range
+- code: P07028
+  component: gearbox
+  description: gearbox fault or out-of-range
+- code: C12019
+  component: abs_ecu
+  description: abs ecu fault or out-of-range
+- code: C12020
+  component: power_steering
+  description: power steering fault or out-of-range
+- code: B10011
+  component: infotainment
+  description: infotainment fault or out-of-range
+- code: B10022
+  component: hvac
+  description: hvac fault or out-of-range

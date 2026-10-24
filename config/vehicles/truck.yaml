@@ -1,0 +1,156 @@
+vehicle: truck
+synthetic: true
+components:
+- id: battery
+  system: power
+- id: alternator
+  system: power
+- id: power_dist
+  system: power
+- id: can_backbone
+  system: network
+- id: engine_ecu
+  system: powertrain
+- id: body_ecu
+  system: body
+- id: fuel_pump
+  system: fuel
+- id: fuel_rail
+  system: fuel
+- id: injectors
+  system: fuel
+- id: turbo
+  system: air
+- id: maf_sensor
+  system: air
+- id: coolant_sensor
+  system: cooling
+- id: trans_ecu
+  system: driveline
+- id: transmission
+  system: driveline
+- id: abs_ecu
+  system: chassis
+- id: brakes
+  system: chassis
+- id: wheel_speed_sensors
+  system: chassis
+- id: aftertreatment
+  system: emissions
+- id: dashboard
+  system: body
+- id: lighting
+  system: body
+edges:
+- from: alternator
+  to: battery
+  p: 0.9
+- from: battery
+  to: power_dist
+  p: 0.9
+- from: power_dist
+  to: engine_ecu
+  p: 0.9
+- from: power_dist
+  to: can_backbone
+  p: 0.9
+- from: can_backbone
+  to: body_ecu
+  p: 0.9
+- from: can_backbone
+  to: engine_ecu
+  p: 0.9
+- from: power_dist
+  to: fuel_pump
+  p: 0.9
+- from: fuel_pump
+  to: fuel_rail
+  p: 0.9
+- from: fuel_rail
+  to: injectors
+  p: 0.9
+- from: engine_ecu
+  to: injectors
+  p: 0.9
+- from: engine_ecu
+  to: turbo
+  p: 0.9
+- from: power_dist
+  to: maf_sensor
+  p: 0.9
+- from: power_dist
+  to: coolant_sensor
+  p: 0.9
+- from: can_backbone
+  to: trans_ecu
+  p: 0.9
+- from: trans_ecu
+  to: transmission
+  p: 0.9
+- from: can_backbone
+  to: abs_ecu
+  p: 0.9
+- from: power_dist
+  to: wheel_speed_sensors
+  p: 0.9
+- from: wheel_speed_sensors
+  to: abs_ecu
+  p: 0.9
+- from: abs_ecu
+  to: brakes
+  p: 0.9
+- from: engine_ecu
+  to: aftertreatment
+  p: 0.9
+- from: can_backbone
+  to: dashboard
+  p: 0.9
+- from: body_ecu
+  to: lighting
+  p: 0.9
+- from: maf_sensor
+  to: engine_ecu
+  p: 0.9
+dtcs:
+- code: P05010
+  component: battery
+  description: battery fault or out-of-range
+- code: P06011
+  component: engine_ecu
+  description: engine ecu fault or out-of-range
+- code: P02012
+  component: fuel_pump
+  description: fuel pump fault or out-of-range
+- code: P02023
+  component: injectors
+  description: injectors fault or out-of-range
+- code: P01014
+  component: turbo
+  description: turbo fault or out-of-range
+- code: P01025
+  component: maf_sensor
+  description: maf sensor fault or out-of-range
+- code: P00016
+  component: coolant_sensor
+  description: coolant sensor fault or out-of-range
+- code: P07017
+  component: trans_ecu
+  description: trans ecu fault or out-of-range
+- code: P07028
+  component: transmission
+  description: transmission fault or out-of-range
+- code: C12019
+  component: abs_ecu
+  description: abs ecu fault or out-of-range
+- code: C12020
+  component: brakes
+  description: brakes fault or out-of-range
+- code: P04011
+  component: aftertreatment
+  description: aftertreatment fault or out-of-range
+- code: B10012
+  component: dashboard
+  description: dashboard fault or out-of-range
+- code: B10023
+  component: lighting
+  description: lighting fault or out-of-range
