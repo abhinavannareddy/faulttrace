@@ -117,45 +117,45 @@ edges:
   to: display
   p: 0.9
 dtcs:
-- code: P05010
+- code: P0501
   component: battery
   description: battery fault or out-of-range
-- code: P06011
+- code: P0601
   component: engine_ecu
   description: engine ecu fault or out-of-range
-- code: P02012
+- code: P0201
   component: fuel_pump
   description: fuel pump fault or out-of-range
-- code: P02023
+- code: P0202
   component: injectors
   description: injectors fault or out-of-range
-- code: P01014
+- code: P0101
   component: air_compressor
   description: air compressor fault or out-of-range
-- code: C12015
+- code: C1201
   component: brake_circuit
   description: brake circuit fault or out-of-range
-- code: C12026
+- code: C1202
   component: abs_ecu
   description: abs ecu fault or out-of-range
-- code: B10017
+- code: B1001
   component: doors
   description: doors fault or out-of-range
-- code: B10028
+- code: B1002
   component: hvac
   description: hvac fault or out-of-range
-- code: C12039
+- code: C1203
   component: kneeling_valve
   description: kneeling valve fault or out-of-range
-- code: P07010
+- code: P0701
   component: trans_ecu
   description: trans ecu fault or out-of-range
-- code: P07021
+- code: P0702
   component: transmission
   description: transmission fault or out-of-range
-- code: B10032
+- code: B1003
   component: passenger_counter
   description: passenger counter fault or out-of-range
-- code: B10043
+- code: B1004
   component: display
   description: display fault or out-of-range

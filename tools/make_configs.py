@@ -1,4 +1,5 @@
-"""Writes the four example vehicle configs (synthetic topologies, synthetic DTC codes)."""
+"""Writes the four example vehicle configs (synthetic topologies; invented codes in the OBD-II format,
+a letter P/C/B/U followed by four digits)."""
 from pathlib import Path
 
 import yaml
@@ -69,7 +70,7 @@ VEHICLES = {
 
 PREFIX = {"power": "P05", "network": "U01", "powertrain": "P06", "body": "B10", "fuel": "P02", "air": "P01",
           "cooling": "P00", "driveline": "P07", "chassis": "C12", "emissions": "P04", "ignition": "P03",
-          "hydraulics": "H20", "controls": "H30"}
+          "hydraulics": "P25", "controls": "P26"}
 # components that raise no diagnostic code of their own ("silent"): the diagnosis must infer them
 SILENT = {"power_dist", "alternator", "fuel_rail", "wheel_speed_sensors", "body_ecu", "can_backbone", "air_dryer",
           "pump_controller", "main_valve", "joystick", "hvac_ecu", "door_ecu", "steering_ecu", "climate_ecu"}
@@ -83,7 +84,7 @@ def build(name, spec):
         if cid in SILENT:
             continue
         n[system] = n.get(system, 0) + 1
-        dtcs.append({"code": f"{PREFIX[system]}{n[system]:02d}{len(dtcs) % 10}", "component": cid,
+        dtcs.append({"code": f"{PREFIX[system]}{n[system]:02d}", "component": cid,
                      "description": f"{cid.replace('_', ' ')} fault or out-of-range"})
     return {"vehicle": name, "synthetic": True,
             "components": [{"id": c, "system": s} for c, s in comps],

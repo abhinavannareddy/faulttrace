@@ -115,42 +115,42 @@ edges:
   to: cab_display
   p: 0.9
 dtcs:
-- code: P05010
+- code: P0501
   component: battery
   description: battery fault or out-of-range
-- code: P06011
+- code: P0601
   component: engine_ecu
   description: engine ecu fault or out-of-range
-- code: H20012
+- code: P2501
   component: hydraulic_pump
   description: hydraulic pump fault or out-of-range
-- code: H20023
+- code: P2502
   component: boom_cylinder
   description: boom cylinder fault or out-of-range
-- code: H20034
+- code: P2503
   component: arm_cylinder
   description: arm cylinder fault or out-of-range
-- code: H20045
+- code: P2504
   component: swing_motor
   description: swing motor fault or out-of-range
-- code: P00016
+- code: P0001
   component: oil_cooler
   description: oil cooler fault or out-of-range
-- code: P00027
+- code: P0002
   component: oil_temp_sensor
   description: oil temp sensor fault or out-of-range
-- code: H20058
+- code: P2505
   component: pressure_sensor
   description: pressure sensor fault or out-of-range
-- code: H30019
+- code: P2601
   component: joystick_ecu
   description: joystick ecu fault or out-of-range
-- code: P02010
+- code: P0201
   component: fuel_pump
   description: fuel pump fault or out-of-range
-- code: P02021
+- code: P0202
   component: injectors
   description: injectors fault or out-of-range
-- code: B10012
+- code: B1001
   component: cab_display
   description: cab display fault or out-of-range

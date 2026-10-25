@@ -112,45 +112,45 @@ edges:
   to: engine_ecu
   p: 0.9
 dtcs:
-- code: P05010
+- code: P0501
   component: battery
   description: battery fault or out-of-range
-- code: P06011
+- code: P0601
   component: engine_ecu
   description: engine ecu fault or out-of-range
-- code: P02012
+- code: P0201
   component: fuel_pump
   description: fuel pump fault or out-of-range
-- code: P02023
+- code: P0202
   component: injectors
   description: injectors fault or out-of-range
-- code: P01014
+- code: P0101
   component: turbo
   description: turbo fault or out-of-range
-- code: P01025
+- code: P0102
   component: maf_sensor
   description: maf sensor fault or out-of-range
-- code: P00016
+- code: P0001
   component: coolant_sensor
   description: coolant sensor fault or out-of-range
-- code: P07017
+- code: P0701
   component: trans_ecu
   description: trans ecu fault or out-of-range
-- code: P07028
+- code: P0702
   component: transmission
   description: transmission fault or out-of-range
-- code: C12019
+- code: C1201
   component: abs_ecu
   description: abs ecu fault or out-of-range
-- code: C12020
+- code: C1202
   component: brakes
   description: brakes fault or out-of-range
-- code: P04011
+- code: P0401
   component: aftertreatment
   description: aftertreatment fault or out-of-range
-- code: B10012
+- code: B1001
   component: dashboard
   description: dashboard fault or out-of-range
-- code: B10023
+- code: B1002
   component: lighting
   description: lighting fault or out-of-range

@@ -1,4 +1,5 @@
 import random
+import re
 
 import networkx as nx
 import pytest
@@ -17,6 +18,7 @@ def test_configs_load_and_are_consistent(name):
     assert len(v.components) > 15
     assert set(v.dtc_component.values()) <= set(v.components)
     assert len(v.dtc_component) == len({c for c in v.dtc_component})
+    assert all(re.fullmatch(r"[PCBU][0-3][0-9A-F]{3}", code) for code in v.dtc_component)
 
 
 def test_propagation_only_follows_edges():

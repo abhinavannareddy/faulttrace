@@ -112,42 +112,42 @@ edges:
   to: hvac
   p: 0.9
 dtcs:
-- code: P05010
+- code: P0501
   component: battery
   description: battery fault or out-of-range
-- code: P06011
+- code: P0601
   component: engine_ecu
   description: engine ecu fault or out-of-range
-- code: P02012
+- code: P0201
   component: fuel_pump
   description: fuel pump fault or out-of-range
-- code: P02023
+- code: P0202
   component: injectors
   description: injectors fault or out-of-range
-- code: P01014
+- code: P0101
   component: throttle_body
   description: throttle body fault or out-of-range
-- code: P04015
+- code: P0401
   component: o2_sensor
   description: o2 sensor fault or out-of-range
-- code: P03016
+- code: P0301
   component: ignition_coils
   description: ignition coils fault or out-of-range
-- code: P07017
+- code: P0701
   component: trans_ecu
   description: trans ecu fault or out-of-range
-- code: P07028
+- code: P0702
   component: gearbox
   description: gearbox fault or out-of-range
-- code: C12019
+- code: C1201
   component: abs_ecu
   description: abs ecu fault or out-of-range
-- code: C12020
+- code: C1202
   component: power_steering
   description: power steering fault or out-of-range
-- code: B10011
+- code: B1001
   component: infotainment
   description: infotainment fault or out-of-range
-- code: B10022
+- code: B1002
   component: hvac
   description: hvac fault or out-of-range
