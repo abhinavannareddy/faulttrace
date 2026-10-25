@@ -2,7 +2,7 @@
 import math
 import random
 
-from .model import Vehicle, propagate, P_DTC_RAISED, P_SPURIOUS
+from .model import P_DTC_RAISED, P_SPURIOUS, Vehicle, propagate
 
 EPS = 1e-3
 GAP_MS = 500

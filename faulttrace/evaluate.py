@@ -1,4 +1,5 @@
 """Evaluation on synthetic incidents: simulation-based diagnosis versus an earliest-code baseline."""
+import copy
 import json
 import random
 import sys
@@ -13,7 +14,6 @@ VEHICLES = ["truck", "car", "bus", "excavator"]
 
 def perturbed(v, rng, lo=0.6, hi=1.0):
     """Copy of the vehicle whose edge probabilities differ from what the diagnoser assumes."""
-    import copy
     w = copy.deepcopy(v)
     w._cache = {}
     for a, b in w.graph.edges:
@@ -28,8 +28,7 @@ def run(n_per_vehicle: int = 200, seed: int = 11, mismatch: bool = False):
         rng = random.Random(f"{seed}:{name}")
         roots = v.components
         truth = perturbed(v, rng) if mismatch else v
-        stats = dict(n=0, top1=0, top3=0, base=0, silent_n=0, silent_top1=0, silent_base=0,
-                     accepted=0, accepted_correct=0)
+        stats = {"n": 0, "top1": 0, "top3": 0, "base": 0, "silent_n": 0, "silent_top1": 0, "silent_base": 0}
         for _ in range(n_per_vehicle):
             root = rng.choice(roots)
             events = make_incident(truth, root, rng)
@@ -56,7 +55,7 @@ def run_agent_check(n: int = 40, seed: int = 5):
     for name in VEHICLES:
         v = load_vehicle(name)
         rng = random.Random(f"agent:{seed}:{name}")
-        st = dict(n=0, accepted=0, accepted_correct=0, correct=0)
+        st = {"n": 0, "accepted": 0, "accepted_correct": 0, "correct": 0}
         for _ in range(n):
             root = rng.choice(v.components)
             events = make_incident(v, root, rng)
@@ -83,7 +82,7 @@ def main():
     ag = run_agent_check()
     lines = ["| Vehicle | Incidents | Simulation top-1 | Simulation top-3 | Earliest-code baseline | Silent-root incidents | Silent: ours / baseline |",
              "|---|---|---|---|---|---|---|"]
-    tot = dict(n=0, top1=0, top3=0, base=0, silent_n=0, silent_top1=0, silent_base=0)
+    tot = {"n": 0, "top1": 0, "top3": 0, "base": 0, "silent_n": 0, "silent_top1": 0, "silent_base": 0}
     for name, s in ev.items():
         for k in tot:
             tot[k] += s[k]

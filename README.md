@@ -1,15 +1,29 @@
-# FaultTrace - Root-Cause Diagnosis for Any Vehicle
+# FaultTrace
 
-Diagnostic tool that can be configured for trucks, cars, buses and construction equipment. Given a
-burst of diagnostic trouble codes (DTCs), it proposes the most likely root cause and **verifies it by
-simulating the fault**, then writes a short report with evidence.
+[![ci](https://github.com/abhinavannareddy/faulttrace/actions/workflows/ci.yml/badge.svg)](https://github.com/abhinavannareddy/faulttrace/actions/workflows/ci.yml)
+![python](https://img.shields.io/badge/python-3.12%2B-blue)
+![license](https://img.shields.io/badge/license-MIT-green)
+
+**Root-cause diagnosis for trucks, cars, buses and construction equipment, from one codebase.**
+
+Give it a burst of diagnostic trouble codes (DTCs) and it names the most likely root cause, checks
+that guess by simulating the fault, and writes a short report with the evidence.
 
 A vehicle is only a YAML file: components, "a fault in A can make B misbehave" edges with
 probabilities, and the DTCs each component owns. The same code runs for all four examples in
 `config/vehicles/`. Some root causes are **silent** (for example the power distribution unit raises
 no code of its own), which is why a graph model is needed instead of "blame the first code".
 
+## How a fault spreads
+
+![Fault graph of the truck model](docs/fault_graph.png)
+
+A fault in the power distribution unit (red ring) can reach most of the truck, but the unit itself
+raises no code. A "blame the first code" rule can never name it. FaultTrace can.
+
 ## Workflow (LangGraph)
+
+![Workflow](docs/workflow.png)
 
 `triage` (keep the main burst, drop isolated and unknown codes) -> `investigator` (rank every
 component by the likelihood of the observed code set under simulated propagation) -> `verifier`
@@ -24,9 +38,22 @@ pytest -q
 python -m faulttrace.evaluate 200        # prints the table below, writes results/latest.*
 uvicorn faulttrace.api:app --reload      # POST /diagnose, GET /vehicles
 python -m faulttrace.cypher truck        # Cypher to load a vehicle into Neo4j
+
+# optional: redraw the figures in docs/ (needs matplotlib)
+pip install -r requirements-dev.txt && python tools/make_figures.py
 ```
 
+## Using the API
+
+```bash
+curl -X POST localhost:8000/diagnose -H "content-type: application/json"   -d '{"vehicle": "truck", "events": [{"code": "P05010", "time_ms": 3010}, {"code": "P06011", "time_ms": 3080}]}'
+```
+
+Only the vehicles in `config/vehicles/` can be requested; anything else returns 404.
+
 ## Results (latest local run, 200 synthetic incidents per vehicle)
+
+![Accuracy chart](docs/results.png)
 
 | Vehicle | Incidents | Simulation top-1 | Simulation top-3 | Earliest-code baseline | Silent-root incidents | Silent: ours / baseline |
 |---|---|---|---|---|---|---|

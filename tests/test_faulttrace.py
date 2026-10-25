@@ -1,5 +1,6 @@
 import random
 
+import networkx as nx
 import pytest
 from fastapi.testclient import TestClient
 
@@ -23,7 +24,6 @@ def test_propagation_only_follows_edges():
     rng = random.Random(1)
     for root in v.components:
         affected = propagate(v, root, rng)
-        import networkx as nx
         reachable = nx.descendants(v.graph, root) | {root}
         assert set(affected) <= reachable
 
@@ -84,6 +84,13 @@ def test_api():
     r = c.post("/diagnose", json={"vehicle": "truck", "events": [{"code": a, "time_ms": t} for a, t in events]})
     assert r.status_code == 200 and "text" in r.json()
     assert c.post("/diagnose", json={"vehicle": "tractor", "events": []}).status_code == 404
+
+
+@pytest.mark.parametrize("name", ["config/vehicles/truck.yaml", "requirements.txt", "../README.md"])
+def test_api_does_not_treat_vehicle_name_as_a_file_path(name):
+    from faulttrace.api import app
+    r = TestClient(app).post("/diagnose", json={"vehicle": name, "events": []})
+    assert r.status_code == 404
 
 
 def test_simulation_diagnosis_beats_baseline_overall():

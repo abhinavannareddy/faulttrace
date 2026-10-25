@@ -1,5 +1,6 @@
 """Writes the four example vehicle configs (synthetic topologies, synthetic DTC codes)."""
 from pathlib import Path
+
 import yaml
 
 OUT = Path(__file__).resolve().parent.parent / "config" / "vehicles"

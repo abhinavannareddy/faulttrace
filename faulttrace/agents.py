@@ -1,7 +1,7 @@
 """LangGraph workflow: triage -> investigator -> verifier (loops over candidates) -> reporter."""
 from typing import TypedDict
 
-from langgraph.graph import StateGraph, END
+from langgraph.graph import END, StateGraph
 
 from .diagnose import rank_causes, triage, verify
 from .model import Vehicle
@@ -29,8 +29,6 @@ def triage_agent(s: State) -> State:
 
 
 def investigator(s: State) -> State:
-    if "ranking" in s and s["ranking"]:
-        return {}
     return {"ranking": rank_causes(s["vehicle"], {c for c, _ in s["burst"]})}
 
 
@@ -44,16 +42,19 @@ def verifier(s: State) -> State:
     return out
 
 
+def route_after_triage(s: State) -> str:
+    return "investigator" if s["burst"] else "reporter"
+
+
 def route_after_verify(s: State) -> str:
     if s.get("accepted") or len(s["tried"]) >= MAX_CANDIDATES:
         return "reporter"
-    return "investigator"
+    return "verifier"
 
 
 def reporter(s: State) -> State:
-    ranking, tried = s["ranking"], s["tried"]
+    ranking, tried = s.get("ranking", []), s["tried"]
     chosen = s.get("accepted")
-    best = ranking[0]
     if not s["burst"]:
         report = {"verdict": "no_data", "text": "No known diagnostic codes were found in the log."}
     elif chosen:
@@ -63,6 +64,7 @@ def reporter(s: State) -> State:
                            f"Re-simulating the fault reproduces the observed codes "
                            f"(overlap {s['verification']['jaccard']}).")}
     else:
+        best = ranking[0]
         report = {"verdict": "unverified", "root_cause": best["component"], "probability": best["probability"],
                   "text": (f"No candidate passed simulation check. Best guess: {best['component']} "
                            f"(probability {best['probability']}). A technician should confirm.")}
@@ -79,9 +81,9 @@ def build_graph():
     g.add_node("verifier", verifier)
     g.add_node("reporter", reporter)
     g.set_entry_point("triage")
-    g.add_edge("triage", "investigator")
+    g.add_conditional_edges("triage", route_after_triage, {"investigator": "investigator", "reporter": "reporter"})
     g.add_edge("investigator", "verifier")
-    g.add_conditional_edges("verifier", route_after_verify, {"reporter": "reporter", "investigator": "verifier"})
+    g.add_conditional_edges("verifier", route_after_verify, {"reporter": "reporter", "verifier": "verifier"})
     g.add_edge("reporter", END)
     return g.compile()
 

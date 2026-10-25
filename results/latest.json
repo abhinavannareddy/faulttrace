@@ -7,9 +7,7 @@
       "base": 119,
       "silent_n": 56,
       "silent_top1": 17,
-      "silent_base": 0,
-      "accepted": 0,
-      "accepted_correct": 0
+      "silent_base": 0
     },
     "car": {
       "n": 183,
@@ -18,9 +16,7 @@
       "base": 115,
       "silent_n": 53,
       "silent_top1": 20,
-      "silent_base": 0,
-      "accepted": 0,
-      "accepted_correct": 0
+      "silent_base": 0
     },
     "bus": {
       "n": 190,
@@ -29,9 +25,7 @@
       "base": 115,
       "silent_n": 57,
       "silent_top1": 32,
-      "silent_base": 0,
-      "accepted": 0,
-      "accepted_correct": 0
+      "silent_base": 0
     },
     "excavator": {
       "n": 188,
@@ -40,9 +34,7 @@
       "base": 108,
       "silent_n": 62,
       "silent_top1": 45,
-      "silent_base": 0,
-      "accepted": 0,
-      "accepted_correct": 0
+      "silent_base": 0
     }
   },
   "agent": {

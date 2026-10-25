@@ -5,6 +5,7 @@ from .model import load_vehicle
 
 
 def to_cypher(name: str) -> str:
+    """Cypher statements for one vehicle. Names come from our own YAML files, so they are not escaped."""
     v = load_vehicle(name)
     lines = []
     for n, d in v.graph.nodes(data=True):

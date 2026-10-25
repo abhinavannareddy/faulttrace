@@ -17,15 +17,19 @@ class Request(BaseModel):
     events: list[Event]
 
 
+def available_vehicles():
+    return sorted(p.stem for p in CONFIG_DIR.glob("*.yaml"))
+
+
 @app.get("/vehicles")
 def vehicles():
-    return sorted(p.stem for p in CONFIG_DIR.glob("*.yaml"))
+    return available_vehicles()
 
 
 @app.post("/diagnose")
 def diagnose_route(req: Request):
-    try:
-        v = load_vehicle(req.vehicle)
-    except FileNotFoundError:
+    # Only the shipped configs are served; never treat client input as a file path.
+    if req.vehicle not in available_vehicles():
         raise HTTPException(404, "unknown vehicle")
+    v = load_vehicle(req.vehicle)
     return diagnose(v, [(e.code, e.time_ms) for e in req.events])
