@@ -3,44 +3,114 @@ synthetic: true
 components:
 - id: battery
   system: power
+  service:
+    action: Measure supply voltage and ground drop under load; inspect fuses, terminals
+      and connectors
+    minutes: 40
 - id: alternator
   system: power
+  service:
+    action: Measure supply voltage and ground drop under load; inspect fuses, terminals
+      and connectors
+    minutes: 40
 - id: power_dist
   system: power
+  service:
+    action: Measure supply voltage and ground drop under load; inspect fuses, terminals
+      and connectors
+    minutes: 40
 - id: can_backbone
   system: network
+  service:
+    action: Check bus termination and wiring resistance; look for a node that is holding
+      the bus down
+    minutes: 60
 - id: engine_ecu
   system: powertrain
+  service:
+    action: Read freeze-frame data, check supply and ground, then reflash or replace
+      the control unit
+    minutes: 45
 - id: body_ecu
   system: body
+  service:
+    action: Check the module's supply, its connector and the fuse before replacing
+      it
+    minutes: 25
 - id: fuel_pump
   system: fuel
+  service:
+    action: Test supply pressure and inspect lines, filter and electrical connector
+    minutes: 35
 - id: injectors
   system: fuel
+  service:
+    action: Test supply pressure and inspect lines, filter and electrical connector
+    minutes: 35
 - id: throttle_body
   system: air
+  service:
+    action: Inspect the air path for leaks and the sensor connector; compare the reading
+      with a reference
+    minutes: 30
 - id: o2_sensor
   system: emissions
+  service:
+    action: Inspect the sensor and exhaust for leaks; check heater and signal circuits
+    minutes: 40
 - id: ignition_coils
   system: ignition
+  service:
+    action: Test coil resistance and supply; check the plug and connector
+    minutes: 25
 - id: trans_ecu
   system: driveline
+  service:
+    action: Check fluid level and condition, then the module connector and harness
+    minutes: 50
 - id: gearbox
   system: driveline
+  service:
+    action: Check fluid level and condition, then the module connector and harness
+    minutes: 50
 - id: abs_ecu
   system: chassis
+  service:
+    action: Check sensor air gap, wiring and connector; test the signal with a scope
+    minutes: 35
 - id: wheel_speed_sensors
   system: chassis
+  service:
+    action: Check sensor air gap, wiring and connector; test the signal with a scope
+    minutes: 35
 - id: steering_ecu
   system: chassis
+  service:
+    action: Check sensor air gap, wiring and connector; test the signal with a scope
+    minutes: 35
 - id: power_steering
   system: chassis
+  service:
+    action: Check sensor air gap, wiring and connector; test the signal with a scope
+    minutes: 35
 - id: infotainment
   system: body
+  service:
+    action: Check the module's supply, its connector and the fuse before replacing
+      it
+    minutes: 25
 - id: climate_ecu
   system: body
+  service:
+    action: Check the module's supply, its connector and the fuse before replacing
+      it
+    minutes: 25
 - id: hvac
   system: body
+  service:
+    action: Check the module's supply, its connector and the fuse before replacing
+      it
+    minutes: 25
 edges:
 - from: alternator
   to: battery

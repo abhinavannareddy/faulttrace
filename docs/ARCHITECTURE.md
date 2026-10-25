@@ -1,8 +1,8 @@
 # How FaultTrace works
 
-This document describes the model, the ranking maths, the verification step and the reasoning behind
-the main design choices. The package is small (about 440 lines of Python), so it is meant to be read next to
-`faulttrace/model.py`, `faulttrace/diagnose.py` and `faulttrace/agents.py`.
+This document describes the model, the ranking maths, the verification step, how uncertainty is reported and
+the reasoning behind the main design choices. The package is small (about 1,200 lines of Python), so it is meant
+to be read next to `faulttrace/model.py`, `faulttrace/diagnose.py` and `faulttrace/agents.py`.
 
 ## 1. The vehicle model
 
@@ -16,14 +16,20 @@ A vehicle is a directed graph of components.
 - Two constants describe the logging process (`faulttrace/model.py`): an affected component raises
   each of its codes with probability `P_DTC_RAISED = 0.90`, and any code appears by accident with
   probability `P_SPURIOUS = 0.02`.
+- Optional per component: `failure_rate` (how often it is the root cause, relative to the others, default 1)
+  and `service` (repair action, minutes, part).
+
+`load_vehicle` validates the file and rejects duplicate ids, edges or codes that refer to unknown components,
+bad probabilities, duplicate codes and non-positive failure rates. It also records a hash of the file
+(`source_sha`) that is stored with every diagnosis.
 
 ### Simulating a fault
 
 `propagate(vehicle, root, rng)` is a breadth-first *independent cascade*: starting at the root, every
 outgoing edge fires once with its probability, newly affected components try their own outgoing edges,
 and a component can only be affected once. Each hop adds a random delay of 20 to 120 ms, which is
-where code timestamps come from. This is the same process that generates the synthetic incidents
-used for evaluation, which is why the model-mismatch test in section 7 exists.
+where the code timestamps of generated incidents come from. This is the same process that generates the
+synthetic incidents used for evaluation, which is why the model-mismatch test in section 8 exists.
 
 ## 2. Ranking candidate causes
 
@@ -38,90 +44,121 @@ were the single root cause?*
 3. Treat codes as independent given the root. The log-likelihood of the observation is the sum over
    **all** known codes of `log(q + eps)` if the code was observed, else `log(1 - q + eps)`, with
    `eps = 1e-3` to avoid `log(0)`.
-4. Turn log-likelihoods into probabilities with a softmax. The prior is uniform over components.
+4. Add the log of the component's prior (its normalised `failure_rate`) and turn the scores into
+   probabilities with a softmax. With no `failure_rate` in the config the prior is uniform.
 
 Absent codes count as evidence too, and that is what separates close candidates. A fault in
 `engine_ecu` would also take down several downstream components, so if those codes are missing the
 likelihood drops.
 
 **What the model is, honestly:** a naive-Bayes style approximation. Codes are not truly independent
-given the root, because they share the same cascade. The probabilities it returns are a ranking aid,
-not calibrated confidence. A reported "probability 0.883" means "this candidate dominates under the
-model", not "88% of such incidents are power-distribution faults".
+given the root, because they share the same cascade. The probabilities it returns are a ranking aid, not
+calibrated confidence. A reported "probability 0.729" means "this hypothesis dominates under the model",
+not "73% of such incidents are power-distribution faults". An experiment that scored whole simulated code
+sets instead (which captures the correlation) gained half a point, so the simplification costs little
+([ERROR_ANALYSIS.md](ERROR_ANALYSIS.md)).
+
+### Two simultaneous faults
+
+`rank_hypotheses` adds pairs. Pairs are searched only among the best 8 single candidates, the cascades are
+combined as `1 - (1 - f_a)(1 - f_b)`, and a pair carries a prior penalty (`PAIR_PRIOR = 0.05`, the prior odds
+of two independent root causes against one). Without the penalty a pair fits at least as well as either member
+alone and would always win. The penalty was tuned on 964 mixed incidents: at 0.05 a "two faults" claim is
+right 93% of the time, at the cost of finding only about a third of double faults. It is a warning, not a
+complete search.
 
 ## 3. Verification
 
-`verify` takes a candidate and re-simulates it 200 times with a fresh seed. A code is *predicted*
-when its expected raise rate (`0.9 * P(component affected)`) is at least 0.5. The predicted set is
-compared with the observed set using Jaccard overlap, and the candidate is accepted at 0.6 or more.
-The result also lists codes predicted but not observed, and observed but not explained. Both end up
-in the report as evidence.
+`verify` takes a hypothesis (one component or a pair) and re-simulates it 200 times with a fresh seed. A code
+is *predicted* when its expected raise rate (`0.9 * P(component affected)`) is at least 0.5. The predicted set is
+compared with the observed set using Jaccard overlap, and the hypothesis is accepted at 0.6 or more. The result
+also lists codes predicted but not observed, and observed but not explained. Both end up in the report.
 
-What this step is and is not: the verifier uses the same model as the ranker, so it is a
-**consistency check**, not independent confirmation. Its value is practical. A candidate can win the
-likelihood ranking by a small margin yet predict a very different code set, for example an upstream
-component that would also have triggered five more codes. The overlap test rejects that, the
-workflow moves to the next candidate, and the report says which checks failed.
+What this step is and is not: the verifier uses the same model as the ranker, so it is a **consistency check**,
+not independent confirmation. Its value is practical. A candidate can win the likelihood ranking by a small
+margin yet predict a very different code set, for example an upstream component that would also have triggered
+five more codes. The overlap test rejects that, the workflow moves to the next hypothesis, and the report says
+which checks failed.
 
-## 4. The workflow
+## 4. Ambiguity and the inspection plan
 
-The four steps are nodes in a LangGraph `StateGraph`:
+Accuracy cannot be pushed much higher, because some faults are identical in the data (a silent component with a
+single downstream neighbour that has a code). So the tool reports that instead.
+
+`ambiguity` flags the result when a rival hypothesis has at least half the leader's probability, names the
+rivals, and, when two components are connected in the graph, says so: *a fault in X produces the same codes as
+one in Y plus whatever X breaks elsewhere, so the codes alone cannot separate them.*
+
+`inspection_plan` turns the hypotheses into work. Each component's weight is its total probability across the
+hypotheses it appears in, and components are ordered by probability per minute of repair work (the classic rule
+for finding a fault with the least expected effort), using `service.minutes` from the config, or 30 minutes when
+there is none. The first two steps of the plan contain the true cause in 92.4% of synthetic incidents.
+
+## 5. The workflow
+
+The steps are nodes in a LangGraph `StateGraph`:
 
 ```text
 triage --burst found--> investigator --> verifier --accepted, or 3 tried--> reporter
    |                                        ^  |
-   |                                        +--+  rejected: next candidate
+   |                                        +--+  rejected: next hypothesis
    +--no usable codes------------------------------------------------------> reporter
 ```
 
-- **triage** groups events into bursts (a gap above 500 ms starts a new one), keeps the largest
-  burst, and sets aside isolated codes and codes the vehicle does not define. Both lists appear in
-  the report, so nothing is dropped silently.
-- **investigator** runs the ranking above once.
-- **verifier** works down the ranking, one candidate per pass, at most `MAX_CANDIDATES = 3`.
-- **reporter** builds one of three verdicts: `verified`, `unverified` (best guess, a technician must
-  confirm) or `no_data`.
+- **triage** groups events into bursts (a gap above 500 ms starts a new one), keeps the largest burst, and sets
+  aside isolated codes and codes the vehicle does not define. Both lists appear in the report.
+- **investigator** ranks single and paired hypotheses once.
+- **verifier** works down the ranking, one hypothesis per pass, at most `MAX_CANDIDATES = 3`.
+- **reporter** builds the verdict: `verified` (accepted and clearly ahead), `ambiguous` (accepted but a rival is
+  close), `unverified` (nothing passed the check, best guess only) or `no_data`. It adds the ambiguity analysis,
+  the inspection plan and the evidence.
 
-There is no language model in the workflow. LangGraph is used for what it does well here: an
-explicit state object, conditional edges, and a retry loop that is visible in the graph definition
-instead of being buried in `while` logic.
+There is no language model in the workflow, deliberately. A diagnosis tool that a company audits and a regulator
+may ask about should give the same answer for the same input, and every number in the report is reproducible
+from the stored input and config hash. A language model could be added later to rephrase the report; it should
+not decide the verdict.
 
-## 5. Design decisions
+## 6. Design decisions
 
 | Decision | Why | Cost |
 |---|---|---|
 | Simulate instead of solving exactly | Exact inference on a cyclic graph with noisy edges is awkward; sampling is a few lines and handles cycles | Sampling noise, kept reproducible with fixed seeds |
 | One YAML file per vehicle | The code never mentions a vehicle, so adding one is a data change | The graph has to be written by hand or learned elsewhere |
 | Rank on absent codes as well as present ones | Separates a high-up cause from a local one | Misleads if the log is truncated; triage keeps only one burst |
-| Fixed seeds per vehicle and root | The same input always gives the same output, which makes tests and bug reports reproducible | Results are deterministic, not independent across calls |
-| Report alternatives and failed checks | A technician needs to see what else was plausible | Longer response |
-| Validate configs when loading | A typo in an edge used to create a phantom component without any error | A few lines of checks in `load_vehicle` |
-| API serves only the shipped vehicles | The vehicle name used to be read as a file path | Custom vehicles must be placed in `config/vehicles/` |
+| Report ambiguity instead of forcing an answer | Some cases are identical in the data; a confident wrong answer costs a wrong part | More "check these two" results |
+| Order checks by probability per minute | Matches how a workshop spends time | Needs repair times in the config; falls back to 30 minutes |
+| Deterministic, no language model | Auditable and reproducible | Plain report wording |
+| Fixed seeds per vehicle and root | The same input always gives the same output | Results are deterministic, not independent across calls |
+| Store every diagnosis with config hash and version | Traceability and field accuracy | A database to look after ([DEPLOYMENT.md](DEPLOYMENT.md)) |
+| Validate configs when loading | A typo in an edge used to create a phantom component silently | A few lines of checks |
+| API serves only shipped vehicles | The vehicle name used to be read as a file path | Custom vehicles go in `config/vehicles/` |
 
-## 6. Performance
+## 7. Performance
 
-Measured on a laptop with Python 3.13: the first diagnosis for a vehicle takes about 60 ms, because
-300 simulations are run for each of its 20 candidate roots. After that the per-root results are
-cached and a diagnosis takes a few milliseconds. The API loads each vehicle once per process so the
-cache survives between requests (first request about 130 ms including startup, later ones about
-12 ms through the test client). The one-off cost is roughly components x 300 x edges, and each
-request after that costs components x codes.
+Measured on a laptop with Python 3.13: the first diagnosis for a vehicle takes about 60 ms, because 300
+simulations are run for each of its 20 candidate roots. After that the per-root results are cached and a
+diagnosis takes a few milliseconds (about 12 ms through the HTTP test client, including storing the result).
+The API loads each vehicle once per process so the cache survives between requests. The one-off cost is roughly
+components x 300 x edges, and each request after that costs components x codes, plus a few hundred cheap
+evaluations for the pairs.
 
-## 7. How accuracy was tested, and what that does not show
+## 8. How accuracy was tested, and what that does not show
 
-`python -m faulttrace.evaluate` picks a random root, generates an incident with `make_incident` on
-the same graph, and compares the diagnosis with the known root. Three checks are reported:
+`python -m faulttrace.evaluate` generates incidents with `make_incident` on the same graph and compares the
+diagnosis with the known cause. It reports:
 
-1. **Baseline comparison.** The "earliest code" rule blames the component behind the first logged
-   code. It can never name a silent root cause, so it scores 0% on those by construction.
-2. **Model mismatch.** Incidents are generated with edge probabilities drawn from 0.6 to 1.0 while
-   the diagnoser still assumes 0.9. Top-1 drops from 75.3% to 67.4% and top-3 from 93.8% to 90.2%,
-   so accuracy degrades gradually rather than collapsing.
-3. **Workflow check.** The verifier accepts about 93% of cases, and about 82% of the accepted
-   diagnoses are correct.
+1. **Ranking accuracy** against two rule-based baselines: the earliest-code rule and a set-cover rule (the
+   component whose downstream reach covers the most observed codes). FaultTrace is at 75.2% top-1 and 93.8%
+   top-3; the set-cover rule is at 73.9%.
+2. **Model mismatch.** Incidents are generated with edge probabilities drawn from 0.6 to 1.0 while the diagnoser
+   still assumes 0.9. Top-1 drops from 75.2% to 67.3%, so accuracy degrades gradually.
+3. **Verdict reliability** through the full workflow: verified 92.2% correct, ambiguous 50.0% (93.0% with the
+   rivals), unverified 36.0%.
+4. **Two simultaneous faults** and 5. **fleet failure rates**, described above and in the README.
 
-All three use synthetic incidents from the same model family. They show that the maths and the code
-agree and that the method tolerates wrong edge weights. They say nothing about how well these
-graphs match real vehicles.
+All of it uses synthetic incidents from the same model family. It shows that the maths and the code agree and
+that the method tolerates wrong edge weights. It says nothing about how well these graphs match real vehicles;
+that is what shadow mode and `/stats` are for.
 
-See [ERROR_ANALYSIS.md](ERROR_ANALYSIS.md) for where the diagnoser fails and why.
+See [ERROR_ANALYSIS.md](ERROR_ANALYSIS.md) for where the diagnoser fails, the accuracy ceiling, and the
+timing experiment that did not work.

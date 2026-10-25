@@ -1,0 +1,224 @@
+vehicle: truck_j1939
+synthetic: true
+components:
+- id: battery
+  system: power
+  service:
+    action: Measure supply voltage and ground drop under load; inspect fuses, terminals
+      and connectors
+    minutes: 40
+- id: alternator
+  system: power
+  service:
+    action: Measure supply voltage and ground drop under load; inspect fuses, terminals
+      and connectors
+    minutes: 40
+- id: power_dist
+  system: power
+  service:
+    action: Measure supply voltage and ground drop under load; inspect fuses, terminals
+      and connectors
+    minutes: 40
+- id: can_backbone
+  system: network
+  service:
+    action: Check bus termination and wiring resistance; look for a node that is holding
+      the bus down
+    minutes: 60
+- id: engine_ecu
+  system: powertrain
+  service:
+    action: Read freeze-frame data, check supply and ground, then reflash or replace
+      the control unit
+    minutes: 45
+- id: body_ecu
+  system: body
+  service:
+    action: Check the module's supply, its connector and the fuse before replacing
+      it
+    minutes: 25
+- id: fuel_pump
+  system: fuel
+  service:
+    action: Test supply pressure and inspect lines, filter and electrical connector
+    minutes: 35
+- id: fuel_rail
+  system: fuel
+  service:
+    action: Test supply pressure and inspect lines, filter and electrical connector
+    minutes: 35
+- id: injectors
+  system: fuel
+  service:
+    action: Test supply pressure and inspect lines, filter and electrical connector
+    minutes: 35
+- id: turbo
+  system: air
+  service:
+    action: Inspect the air path for leaks and the sensor connector; compare the reading
+      with a reference
+    minutes: 30
+- id: maf_sensor
+  system: air
+  service:
+    action: Inspect the air path for leaks and the sensor connector; compare the reading
+      with a reference
+    minutes: 30
+- id: coolant_sensor
+  system: cooling
+  service:
+    action: Compare the sensor reading with a reference thermometer; inspect connector
+      and wiring
+    minutes: 20
+- id: trans_ecu
+  system: driveline
+  service:
+    action: Check fluid level and condition, then the module connector and harness
+    minutes: 50
+- id: transmission
+  system: driveline
+  service:
+    action: Check fluid level and condition, then the module connector and harness
+    minutes: 50
+- id: abs_ecu
+  system: chassis
+  service:
+    action: Check sensor air gap, wiring and connector; test the signal with a scope
+    minutes: 35
+- id: brakes
+  system: chassis
+  service:
+    action: Check sensor air gap, wiring and connector; test the signal with a scope
+    minutes: 35
+- id: wheel_speed_sensors
+  system: chassis
+  service:
+    action: Check sensor air gap, wiring and connector; test the signal with a scope
+    minutes: 35
+- id: aftertreatment
+  system: emissions
+  service:
+    action: Inspect the sensor and exhaust for leaks; check heater and signal circuits
+    minutes: 40
+- id: dashboard
+  system: body
+  service:
+    action: Check the module's supply, its connector and the fuse before replacing
+      it
+    minutes: 25
+- id: lighting
+  system: body
+  service:
+    action: Check the module's supply, its connector and the fuse before replacing
+      it
+    minutes: 25
+edges:
+- from: alternator
+  to: battery
+  p: 0.9
+- from: battery
+  to: power_dist
+  p: 0.9
+- from: power_dist
+  to: engine_ecu
+  p: 0.9
+- from: power_dist
+  to: can_backbone
+  p: 0.9
+- from: can_backbone
+  to: body_ecu
+  p: 0.9
+- from: can_backbone
+  to: engine_ecu
+  p: 0.9
+- from: power_dist
+  to: fuel_pump
+  p: 0.9
+- from: fuel_pump
+  to: fuel_rail
+  p: 0.9
+- from: fuel_rail
+  to: injectors
+  p: 0.9
+- from: engine_ecu
+  to: injectors
+  p: 0.9
+- from: engine_ecu
+  to: turbo
+  p: 0.9
+- from: power_dist
+  to: maf_sensor
+  p: 0.9
+- from: power_dist
+  to: coolant_sensor
+  p: 0.9
+- from: can_backbone
+  to: trans_ecu
+  p: 0.9
+- from: trans_ecu
+  to: transmission
+  p: 0.9
+- from: can_backbone
+  to: abs_ecu
+  p: 0.9
+- from: power_dist
+  to: wheel_speed_sensors
+  p: 0.9
+- from: wheel_speed_sensors
+  to: abs_ecu
+  p: 0.9
+- from: abs_ecu
+  to: brakes
+  p: 0.9
+- from: engine_ecu
+  to: aftertreatment
+  p: 0.9
+- from: can_backbone
+  to: dashboard
+  p: 0.9
+- from: body_ecu
+  to: lighting
+  p: 0.9
+- from: maf_sensor
+  to: engine_ecu
+  p: 0.9
+dtcs:
+- code: SPN168-FMI4
+  component: battery
+  description: SPN 168 FMI 4 (battery)
+- code: SPN639-FMI9
+  component: engine_ecu
+  description: SPN 639 FMI 9 (engine ecu)
+- code: SPN94-FMI1
+  component: fuel_pump
+  description: SPN 94 FMI 1 (fuel pump)
+- code: SPN157-FMI18
+  component: injectors
+  description: SPN 157 FMI 18 (injectors)
+- code: SPN102-FMI1
+  component: turbo
+  description: SPN 102 FMI 1 (turbo)
+- code: SPN132-FMI1
+  component: maf_sensor
+  description: SPN 132 FMI 1 (maf sensor)
+- code: SPN110-FMI3
+  component: coolant_sensor
+  description: SPN 110 FMI 3 (coolant sensor)
+- code: SPN639-FMI2
+  component: trans_ecu
+  description: SPN 639 FMI 2 (trans ecu)
+- code: SPN177-FMI0
+  component: transmission
+  description: SPN 177 FMI 0 (transmission)
+- code: SPN563-FMI2
+  component: abs_ecu
+  description: SPN 563 FMI 2 (abs ecu)
+- code: SPN521-FMI13
+  component: brakes
+  description: SPN 521 FMI 13 (brakes)
+- code: SPN3216-FMI2
+  component: aftertreatment
+  description: SPN 3216 FMI 2 (aftertreatment)
+- code: SPN84-FMI9
+  component: dashboard
+  description: SPN 84 FMI 9 (dashboard)

@@ -3,44 +3,113 @@ synthetic: true
 components:
 - id: battery
   system: power
+  service:
+    action: Measure supply voltage and ground drop under load; inspect fuses, terminals
+      and connectors
+    minutes: 40
 - id: alternator
   system: power
+  service:
+    action: Measure supply voltage and ground drop under load; inspect fuses, terminals
+      and connectors
+    minutes: 40
 - id: power_dist
   system: power
+  service:
+    action: Measure supply voltage and ground drop under load; inspect fuses, terminals
+      and connectors
+    minutes: 40
 - id: can_backbone
   system: network
+  service:
+    action: Check bus termination and wiring resistance; look for a node that is holding
+      the bus down
+    minutes: 60
 - id: engine_ecu
   system: powertrain
+  service:
+    action: Read freeze-frame data, check supply and ground, then reflash or replace
+      the control unit
+    minutes: 45
 - id: body_ecu
   system: body
+  service:
+    action: Check the module's supply, its connector and the fuse before replacing
+      it
+    minutes: 25
 - id: hydraulic_pump
   system: hydraulics
+  service:
+    action: Check pressure at the test port and inspect hoses and fittings for leaks
+    minutes: 55
 - id: pump_controller
   system: hydraulics
+  service:
+    action: Check pressure at the test port and inspect hoses and fittings for leaks
+    minutes: 55
 - id: main_valve
   system: hydraulics
+  service:
+    action: Check pressure at the test port and inspect hoses and fittings for leaks
+    minutes: 55
 - id: boom_cylinder
   system: hydraulics
+  service:
+    action: Check pressure at the test port and inspect hoses and fittings for leaks
+    minutes: 55
 - id: arm_cylinder
   system: hydraulics
+  service:
+    action: Check pressure at the test port and inspect hoses and fittings for leaks
+    minutes: 55
 - id: swing_motor
   system: hydraulics
+  service:
+    action: Check pressure at the test port and inspect hoses and fittings for leaks
+    minutes: 55
 - id: oil_cooler
   system: cooling
+  service:
+    action: Compare the sensor reading with a reference thermometer; inspect connector
+      and wiring
+    minutes: 20
 - id: oil_temp_sensor
   system: cooling
+  service:
+    action: Compare the sensor reading with a reference thermometer; inspect connector
+      and wiring
+    minutes: 20
 - id: pressure_sensor
   system: hydraulics
+  service:
+    action: Check pressure at the test port and inspect hoses and fittings for leaks
+    minutes: 55
 - id: joystick_ecu
   system: controls
+  service:
+    action: Check the input device calibration, wiring and supply voltage
+    minutes: 30
 - id: joystick
   system: controls
+  service:
+    action: Check the input device calibration, wiring and supply voltage
+    minutes: 30
 - id: fuel_pump
   system: fuel
+  service:
+    action: Test supply pressure and inspect lines, filter and electrical connector
+    minutes: 35
 - id: injectors
   system: fuel
+  service:
+    action: Test supply pressure and inspect lines, filter and electrical connector
+    minutes: 35
 - id: cab_display
   system: body
+  service:
+    action: Check the module's supply, its connector and the fuse before replacing
+      it
+    minutes: 25
 edges:
 - from: alternator
   to: battery

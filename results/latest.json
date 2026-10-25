@@ -2,65 +2,157 @@
   "per_vehicle": {
     "truck": {
       "n": 193,
-      "top1": 137,
+      "top1": 136,
       "top3": 179,
       "base": 119,
+      "cover": 133,
       "silent_n": 56,
       "silent_top1": 17,
-      "silent_base": 0
+      "silent_base": 0,
+      "silent_cover": 12
     },
     "car": {
       "n": 183,
       "top1": 136,
       "top3": 172,
       "base": 115,
+      "cover": 137,
       "silent_n": 53,
       "silent_top1": 20,
-      "silent_base": 0
+      "silent_base": 0,
+      "silent_cover": 19
     },
     "bus": {
       "n": 190,
       "top1": 148,
       "top3": 179,
       "base": 115,
+      "cover": 146,
       "silent_n": 57,
       "silent_top1": 32,
-      "silent_base": 0
+      "silent_base": 0,
+      "silent_cover": 30
     },
     "excavator": {
       "n": 188,
       "top1": 147,
       "top3": 177,
       "base": 108,
+      "cover": 141,
       "silent_n": 62,
       "silent_top1": 45,
-      "silent_base": 0
+      "silent_base": 0,
+      "silent_cover": 36
+    }
+  },
+  "mismatch": {
+    "truck": {
+      "n": 191,
+      "top1": 129,
+      "top3": 175,
+      "base": 117,
+      "cover": 124,
+      "silent_n": 55,
+      "silent_top1": 19,
+      "silent_base": 0,
+      "silent_cover": 13
+    },
+    "car": {
+      "n": 173,
+      "top1": 112,
+      "top3": 153,
+      "base": 103,
+      "cover": 110,
+      "silent_n": 53,
+      "silent_top1": 13,
+      "silent_base": 0,
+      "silent_cover": 12
+    },
+    "bus": {
+      "n": 189,
+      "top1": 126,
+      "top3": 168,
+      "base": 103,
+      "cover": 120,
+      "silent_n": 74,
+      "silent_top1": 28,
+      "silent_base": 0,
+      "silent_cover": 28
+    },
+    "excavator": {
+      "n": 180,
+      "top1": 126,
+      "top3": 166,
+      "base": 101,
+      "cover": 122,
+      "silent_n": 70,
+      "silent_top1": 35,
+      "silent_base": 0,
+      "silent_cover": 31
     }
   },
   "agent": {
     "truck": {
-      "n": 37,
-      "accepted": 35,
-      "accepted_correct": 32,
-      "correct": 32
+      "n": 94,
+      "correct": 74,
+      "plan_hit": 89,
+      "verified": 58,
+      "verified_correct": 54,
+      "ambiguous": 30,
+      "ambiguous_correct": 18,
+      "unverified": 6,
+      "unverified_correct": 2,
+      "ambiguous_in_group": 29
     },
     "car": {
-      "n": 36,
-      "accepted": 31,
-      "accepted_correct": 24,
-      "correct": 26
+      "n": 90,
+      "correct": 61,
+      "plan_hit": 82,
+      "verified": 43,
+      "verified_correct": 41,
+      "ambiguous": 39,
+      "ambiguous_correct": 18,
+      "unverified": 8,
+      "unverified_correct": 2,
+      "ambiguous_in_group": 37
     },
     "bus": {
-      "n": 38,
-      "accepted": 37,
-      "accepted_correct": 30,
-      "correct": 31
+      "n": 93,
+      "correct": 71,
+      "plan_hit": 85,
+      "verified": 69,
+      "verified_correct": 62,
+      "ambiguous": 19,
+      "ambiguous_correct": 7,
+      "unverified": 5,
+      "unverified_correct": 2,
+      "ambiguous_in_group": 16
     },
     "excavator": {
-      "n": 36,
-      "accepted": 34,
-      "accepted_correct": 26,
-      "correct": 27
+      "n": 92,
+      "correct": 72,
+      "plan_hit": 85,
+      "verified": 60,
+      "verified_correct": 55,
+      "ambiguous": 26,
+      "ambiguous_correct": 14,
+      "unverified": 6,
+      "unverified_correct": 3,
+      "ambiguous_in_group": 24
     }
+  },
+  "multifault": {
+    "single_n": 462,
+    "single_pair_claims": 9,
+    "double_n": 499,
+    "double_pair_claims": 150,
+    "pair_claims_truly_double": 150,
+    "pair_claims_exact": 91,
+    "double_any_member": 395
+  },
+  "priors": {
+    "n": 1114,
+    "with_priors": 895,
+    "uniform": 809
   }
 }

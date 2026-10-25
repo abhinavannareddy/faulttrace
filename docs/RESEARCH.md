@@ -82,13 +82,16 @@ FaultTrace's codes are invented, but their format should be believable.
   [this explainer](https://uds.readthedocs.io/en/latest/pages/knowledge_base/dtc.html); it is a
   secondary source, the standard itself was not consulted.
 
-## Where FaultTrace is weaker than the state of the art
+## Where FaultTrace stands against this literature
 
-| Gap | Why it matters | Possible next step |
-|---|---|---|
-| Single fault only | Real incidents sometimes have two causes | Rank pairs of components, or run diagnosis again after removing the explained codes |
-| Time order is ignored when ranking | Code timestamps carry information about the path a fault took | A time-aware random walk, as in recent microservice work |
-| Edge probabilities are assumed | Real values would come from FMEA, warranty or fleet data | Estimate them from logged incidents |
-| Codes are on/off | Real DTCs have status bits, occurrence counts and freeze-frame data | Use pending vs confirmed to weight evidence |
-| Synthetic evaluation | Incidents come from the model family being tested | Evaluate on public or partner data if it can be found |
-| No fleet context | Patents on vehicle root-cause analysis lean on fleet-wide history | Learn code co-occurrence across many vehicles |
+| Gap | Status |
+|---|---|
+| Single fault only | Pairs of simultaneous faults are now ranked, with a prior penalty. It finds about a third of double faults and is right 93% of the time when it claims one ([ERROR_ANALYSIS.md](ERROR_ANALYSIS.md)). Larger sets are not searched |
+| Time order is ignored when ranking | Tried: a timing term made accuracy worse at every weight on this model, so it was removed. Real logs may differ |
+| Edge probabilities are assumed | Still assumed (0.9). Estimating them from confirmed repairs is the first roadmap item; feedback collection is built ([DEPLOYMENT.md](DEPLOYMENT.md)) |
+| Codes are on/off | Occurrence counts are decoded from J1939 but not used; UDS pending versus confirmed status is not modelled |
+| Heavy-duty reporting | J1939 DM1 decoding and diagnosis are built and tested ([J1939.md](J1939.md)) |
+| Choosing the next measurement (de Kleer and Williams) | Partly: ambiguous cases name the rivals and a cost-ordered inspection plan. Selecting the single most informative test is not done |
+| Priors from failure history | Supported through `failure_rate` in the config; worth +7.7 points on synthetic data when the rates are right |
+| Synthetic evaluation | Unchanged, and the main limitation. Shadow mode with a partner is the remedy |
+| No fleet-wide learning | Not done. Patents in this area use fleet-wide history of code combinations; the diagnosis store is the starting point for it |

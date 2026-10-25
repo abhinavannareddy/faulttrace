@@ -76,22 +76,69 @@ SILENT = {"power_dist", "alternator", "fuel_rail", "wheel_speed_sensors", "body_
           "pump_controller", "main_valve", "joystick", "hvac_ecu", "door_ecu", "steering_ecu", "climate_ecu"}
 
 
-def build(name, spec):
+# Example repair information per system: what to do first and roughly how long it takes. Illustrative
+# numbers; a real deployment would take these from the service manual or the workshop system.
+SERVICE = {
+    "power": ("Measure supply voltage and ground drop under load; inspect fuses, terminals and connectors", 40),
+    "network": ("Check bus termination and wiring resistance; look for a node that is holding the bus down", 60),
+    "powertrain": ("Read freeze-frame data, check supply and ground, then reflash or replace the control unit", 45),
+    "body": ("Check the module's supply, its connector and the fuse before replacing it", 25),
+    "fuel": ("Test supply pressure and inspect lines, filter and electrical connector", 35),
+    "air": ("Inspect the air path for leaks and the sensor connector; compare the reading with a reference", 30),
+    "cooling": ("Compare the sensor reading with a reference thermometer; inspect connector and wiring", 20),
+    "driveline": ("Check fluid level and condition, then the module connector and harness", 50),
+    "chassis": ("Check sensor air gap, wiring and connector; test the signal with a scope", 35),
+    "emissions": ("Inspect the sensor and exhaust for leaks; check heater and signal circuits", 40),
+    "ignition": ("Test coil resistance and supply; check the plug and connector", 25),
+    "hydraulics": ("Check pressure at the test port and inspect hoses and fittings for leaks", 55),
+    "controls": ("Check the input device calibration, wiring and supply voltage", 30),
+}
+
+
+def service_for(system):
+    action, minutes = SERVICE[system]
+    return {"action": action, "minutes": minutes}
+
+
+def build(name, spec, code_map=None):
+    """`code_map` maps a component to (SPN, FMI) for the J1939 variant; components not in it are silent."""
     comps = COMMON["components"] + spec["components"]
     edges = COMMON["edges"] + spec["edges"]
     dtcs, n = [], {}
     for cid, system in comps:
         if cid in SILENT:
             continue
+        if code_map is not None:
+            if cid not in code_map:
+                continue
+            spn, fmi = code_map[cid]
+            dtcs.append({"code": f"SPN{spn}-FMI{fmi}", "component": cid,
+                         "description": f"SPN {spn} FMI {fmi} ({cid.replace('_', ' ')})"})
+            continue
         n[system] = n.get(system, 0) + 1
         dtcs.append({"code": f"{PREFIX[system]}{n[system]:02d}", "component": cid,
                      "description": f"{cid.replace('_', ' ')} fault or out-of-range"})
     return {"vehicle": name, "synthetic": True,
-            "components": [{"id": c, "system": s} for c, s in comps],
+            "components": [{"id": c, "system": s, "service": service_for(s)} for c, s in comps],
             "edges": [{"from": a, "to": b, "p": 0.9} for a, b in edges],
             "dtcs": dtcs}
 
 
+# Heavy-duty truck reporting J1939 SPN/FMI pairs. The SPNs are real parameter numbers (checked against
+# published J1939 parameter lists: 84 vehicle speed, 94 fuel delivery pressure, 102 intake manifold
+# pressure, 110 coolant temperature, 132 intake air mass flow, 157 rail pressure, 168 battery potential,
+# 177 transmission oil temperature, 521 brake pedal position, 563 ABS active, 639 J1939 network,
+# 3216 aftertreatment intake NOx). Which component raises which pair, and the FMI chosen, is an
+# illustration for this synthetic topology and must be replaced by the OEM's own mapping.
+TRUCK_J1939 = {
+    "battery": (168, 4), "engine_ecu": (639, 9), "fuel_pump": (94, 1), "injectors": (157, 18),
+    "turbo": (102, 1), "maf_sensor": (132, 1), "coolant_sensor": (110, 3), "trans_ecu": (639, 2),
+    "transmission": (177, 0), "abs_ecu": (563, 2), "brakes": (521, 13), "aftertreatment": (3216, 2),
+    "dashboard": (84, 9),
+}
+
+
 for name, spec in VEHICLES.items():
     (OUT / f"{name}.yaml").write_text(yaml.safe_dump(build(name, spec), sort_keys=False))
+(OUT / "truck_j1939.yaml").write_text(yaml.safe_dump(build("truck_j1939", VEHICLES["truck"], TRUCK_J1939), sort_keys=False))
 print("written", [p.name for p in OUT.iterdir()])

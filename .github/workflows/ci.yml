@@ -1,12 +1,40 @@
 name: ci
 on: [push, pull_request]
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+    services:
+      neo4j:
+        image: neo4j:5
+        env:
+          NEO4J_AUTH: none
+        ports: ["7687:7687"]
+        options: >-
+          --health-cmd "cypher-shell 'RETURN 1'"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.12" }
-      - run: pip install -r requirements.txt
+        with: { python-version: "${{ matrix.python-version }}", cache: pip }
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
       - run: pytest -q
+        env:
+          NEO4J_URI: bolt://localhost:7687
       - run: python -m faulttrace.evaluate 100
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t faulttrace .
+      - name: Start the container and diagnose through the API
+        run: |
+          docker run -d --name ft -p 8000:8000 faulttrace
+          for i in $(seq 1 30); do curl -fs localhost:8000/health && break; sleep 1; done
+          curl -fs -X POST localhost:8000/diagnose -H 'content-type: application/json' \
+            -d '{"vehicle":"truck","events":[{"code":"P0601","time_ms":3000},{"code":"P0202","time_ms":3050}]}' | grep -q verdict

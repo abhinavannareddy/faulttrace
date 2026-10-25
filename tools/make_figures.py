@@ -76,10 +76,12 @@ def results_chart():
     names = list(data)
     def pct(k, n_key="n"):
         return [100 * data[v][k] / data[v][n_key] for v in names]
-    series = [("Earliest-code baseline", pct("base"), "#c3cad2"),
+    series = [("Earliest-code rule", pct("base"), "#dfe3e8"),
+              ("Set-cover rule", pct("cover"), "#a9b2bd"),
               ("FaultTrace top-1", pct("top1"), "#2f6fdb"),
               ("FaultTrace top-3", pct("top3"), "#12408f")]
-    silent = [("Baseline", pct("silent_base", "silent_n"), "#c3cad2"),
+    silent = [("Earliest-code rule", pct("silent_base", "silent_n"), "#dfe3e8"),
+              ("Set-cover rule", pct("silent_cover", "silent_n"), "#a9b2bd"),
               ("FaultTrace", pct("silent_top1", "silent_n"), "#2f6fdb")]
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.6), gridspec_kw={"width_ratios": [1.5, 1]})
@@ -100,12 +102,43 @@ def results_chart():
             ax.spines[s].set_visible(False)
         ax.tick_params(length=0, colors=MUTED)
         ax.set_title(title, loc="left", fontsize=11, fontweight="bold")
-        ax.legend(frameon=False, fontsize=8.5, loc="upper left", ncol=len(groups))
+        ax.legend(frameon=False, fontsize=8, loc="upper left", ncol=2 if len(groups) == 3 else len(groups))
     fig.suptitle("Diagnosis accuracy on synthetic incidents", x=0.01, ha="left", fontsize=14, fontweight="bold")
     fig.text(0.01, -0.02, "Synthetic data only: incidents come from the same kind of model the diagnoser uses.",
              fontsize=8.5, color=MUTED)
     fig.tight_layout()
     fig.savefig(OUT / "results.png", dpi=170, bbox_inches="tight")
+    plt.close(fig)
+
+
+def verdicts_chart():
+    """How far can each verdict be trusted? Share of incidents and accuracy per verdict."""
+    ag = json.loads((ROOT / "results" / "latest.json").read_text())["agent"]
+    tot = {k: sum(v[k] for v in ag.values()) for k in next(iter(ag.values()))}
+    names = ["verified", "ambiguous", "unverified"]
+    colors = {"verified": "#2a9d8f", "ambiguous": "#e0a31f", "unverified": "#c0392b"}
+    share = [100 * tot[k] / tot["n"] for k in names]
+    acc = [100 * tot[f"{k}_correct"] / tot[k] for k in names]
+    group = 100 * tot["ambiguous_in_group"] / tot["ambiguous"]
+
+    fig, axes = plt.subplots(1, 2, figsize=(11, 3.8))
+    for ax, vals, title in ((axes[0], share, "Share of incidents"), (axes[1], acc, "Root cause correct")):
+        bars = ax.bar(names, vals, color=[colors[n] for n in names], width=0.55)
+        for b, val in zip(bars, vals):
+            ax.text(b.get_x() + b.get_width() / 2, val + 2, f"{val:.0f}%", ha="center", fontsize=10, color=INK)
+        ax.set_ylim(0, 108)
+        ax.set_yticks(range(0, 101, 25), [f"{t}%" for t in range(0, 101, 25)])
+        ax.grid(axis="y", color=GRID)
+        ax.set_axisbelow(True)
+        for sp in ("top", "right", "left"):
+            ax.spines[sp].set_visible(False)
+        ax.tick_params(length=0, colors=MUTED)
+        ax.set_title(title, loc="left", fontsize=11, fontweight="bold")
+    fig.suptitle("What a verdict is worth", x=0.01, ha="left", fontsize=14, fontweight="bold")
+    fig.text(0.01, -0.03, f"When the verdict is ambiguous, the true cause is the leader or a named rival {group:.0f}% of the time. "
+             "Synthetic single-fault incidents, full workflow.", fontsize=8.5, color=MUTED)
+    fig.tight_layout()
+    fig.savefig(OUT / "verdicts.png", dpi=170, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -138,5 +171,6 @@ if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
     fault_graph()
     results_chart()
+    verdicts_chart()
     workflow()
     print("wrote", sorted(p.name for p in OUT.glob("*.png")))
