@@ -1,0 +1,19 @@
+per vehicle: {'truck': {'components': 20, 'edges': 23, 'codes': 14, 'silent': 6}, 'car': {'components': 20, 'edges': 23, 'codes': 13, 'silent': 7}, 'bus': {'components': 21, 'edges': 24, 'codes': 14, 'silent': 7}, 'excavator': {'components': 20, 'edges': 24, 'codes': 13, 'silent': 7}}
+
+Top-1 accuracy by number of distinct codes in the burst
+   1-2 codes:  71.1%  (n=956)
+   3-5 codes:  85.0%  (n=193)
+   6-9 codes:  79.6%  (n=142)
+   10+ codes:  63.9%  (n=194)
+
+Most frequent mistakes (vehicle, true cause -> diagnosed as)
+   23  car: steering_ecu -> power_steering
+   19  car: body_ecu -> hvac
+   18  excavator: alternator -> battery
+   17  car: climate_ecu -> hvac
+   16  truck: fuel_rail -> injectors
+   16  car: wheel_speed_sensors -> abs_ecu
+   15  bus: alternator -> battery
+   15  excavator: pump_controller -> hydraulic_pump
+   14  truck: wheel_speed_sensors -> abs_ecu
+   14  truck: alternator -> battery

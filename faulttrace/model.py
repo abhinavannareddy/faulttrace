@@ -48,10 +48,23 @@ def load_vehicle(name_or_path: str) -> Vehicle:
     cfg = yaml.safe_load(path.read_text())
     g = nx.DiGraph()
     for c in cfg["components"]:
+        if c["id"] in g:
+            raise ValueError(f"{path.name}: duplicate component '{c['id']}'")
         g.add_node(c["id"], system=c["system"])
     for e in cfg["edges"]:
+        for end in (e["from"], e["to"]):
+            if end not in g:
+                raise ValueError(f"{path.name}: edge {e['from']} -> {e['to']} uses unknown component '{end}'")
+        if not 0 < e["p"] <= 1:
+            raise ValueError(f"{path.name}: edge {e['from']} -> {e['to']} has probability {e['p']}, expected (0, 1]")
         g.add_edge(e["from"], e["to"], p=e["p"])
-    dtc_component = {d["code"]: d["component"] for d in cfg["dtcs"]}
+    dtc_component = {}
+    for d in cfg["dtcs"]:
+        if d["component"] not in g:
+            raise ValueError(f"{path.name}: code {d['code']} belongs to unknown component '{d['component']}'")
+        if d["code"] in dtc_component:
+            raise ValueError(f"{path.name}: duplicate code '{d['code']}'")
+        dtc_component[d["code"]] = d["component"]
     component_dtcs = {}
     for code, comp in dtc_component.items():
         component_dtcs.setdefault(comp, []).append(code)

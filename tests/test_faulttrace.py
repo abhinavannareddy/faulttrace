@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 from faulttrace.agents import diagnose
 from faulttrace.diagnose import baseline_earliest_code, rank_causes, triage, verify
-from faulttrace.model import load_vehicle, make_incident, propagate
+from faulttrace.model import CONFIG_DIR, load_vehicle, make_incident, propagate
 
 VEHICLES = ["truck", "car", "bus", "excavator"]
 
@@ -19,6 +19,23 @@ def test_configs_load_and_are_consistent(name):
     assert set(v.dtc_component.values()) <= set(v.components)
     assert len(v.dtc_component) == len({c for c in v.dtc_component})
     assert all(re.fullmatch(r"[PCBU][0-3][0-9A-F]{3}", code) for code in v.dtc_component)
+
+
+@pytest.mark.parametrize("edit, message", [
+    (lambda d: d["edges"].append({"from": "battery", "to": "typo_part", "p": 0.9}), "unknown component 'typo_part'"),
+    (lambda d: d["dtcs"].append({"code": "P9999", "component": "nope"}), "unknown component 'nope'"),
+    (lambda d: d["dtcs"].append(dict(d["dtcs"][0])), "duplicate code"),
+    (lambda d: d["components"].append(dict(d["components"][0])), "duplicate component"),
+    (lambda d: d["edges"][0].update(p=1.5), "probability 1.5"),
+])
+def test_invalid_configs_are_rejected(tmp_path, edit, message):
+    import yaml
+    cfg = yaml.safe_load((CONFIG_DIR / "truck.yaml").read_text())
+    edit(cfg)
+    bad = tmp_path / "bad.yaml"
+    bad.write_text(yaml.safe_dump(cfg))
+    with pytest.raises(ValueError, match=message):
+        load_vehicle(str(bad))
 
 
 def test_propagation_only_follows_edges():
